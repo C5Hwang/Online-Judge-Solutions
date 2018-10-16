@@ -8,7 +8,7 @@
 #define st(x) ((x - 1) * siz + 1)
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
-const int MAX_N = 1e5 + 10 , MAX_B = 400 + 10 ;
+const int MAX_N = 4e4 + 10 , MAX_B = 400 + 10 ;
 
 std::map<int , int> bh ;
 
@@ -17,7 +17,7 @@ struct data {
 }f[MAX_B][MAX_B] ;
 
 int ap[MAX_N] , sum[MAX_B][MAX_N] ;
-int n , siz , tot , num[MAX_N] , a[MAX_N] , bk[MAX_N] ;
+int n , m , siz , tot , num[MAX_N] , a[MAX_N] , bk[MAX_N] ;
 
 ///
 
@@ -90,7 +90,7 @@ data work2(int x , int y) {
 ///
 
 int main() {
-	n = read() ; siz = (int)sqrt(n) ;
+	n = read() ; m = read() ; siz = (int)sqrt(n) ;
 	for (int i = 1 ; i <= n ; ++i) {
 		int t = read() ;
 
@@ -122,10 +122,14 @@ int main() {
 
 	///
 
-	for (int i = 0 ; i < n ; ++i) {
+	int ans = 0 ;
+	for (int i = 0 ; i < m ; ++i) {
 		int a , b ; a = read() ; b = read() ;
 
-		int ans = num[work2(a , b).num] ;
+		a = (a + ans - 1) % n + 1 ; b = (b + ans - 1) % n + 1 ;
+		if (a > b) std::swap(a , b) ;
+
+		ans = num[work2(a , b).num] ;
 		printf("%d\n" , ans) ;
 	}
 
