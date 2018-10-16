@@ -2,36 +2,31 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #define ed(x) (x * siz)
 #define st(x) ((x - 1) * siz + 1)
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
-const int MAX_N = 1e5 + 10 , MAX_B = 320 + 10 ;
-
-struct data {
-	int b , p ;
-
-	friend data operator +(data x , int a) {return (data){x.b , x.p + a} ;}
-}pl[MAX_N] ;
-struct COUNT {
-	int num , cnt ;
-}ans[MAX_B][MAX_B] ;
+const int MAX_N = 1e5 + 10 , MAX_B = 400 + 10 ;
 
 std::map<int , int> bh ;
 
-bool ap[MAX_N] ;
+struct data {
+	int num , cnt ;
+}f[MAX_B][MAX_B] ;
+
+int ap[MAX_N] , sum[MAX_B][MAX_N] ;
 int n , siz , tot , num[MAX_N] , a[MAX_N] , bk[MAX_N] ;
-int bp[MAX_B][MAX_N] , f[MAX_B][MAX_B][MAX_B] , g[MAX_B][MAX_N] ;
 
 ///
 
-COUNT cmp(COUNT a , COUNT b) {
-	if (a.cnt < b.cnt) return b ;
-	else if (a.cnt > b.cnt) return a ;
+data cmp(data x , data y) {
+	if (x.cnt > y.cnt) return x ;
+	else if (x.cnt < y.cnt) return y ;
 
-	if (num[a.num] < num[b.num]) return a ;
-	else return b ;
+	if (num[x.num] > num[y.num]) return y ;
+	else return x ;
 }
 
 inline int read() {
@@ -46,42 +41,49 @@ inline int read() {
 
 ///
 
-int cal(int p , int a) {
-	if (!p) return 0 ;
+int find(int bx , int by , int a) {
+	if (bx > by) return 0 ;
 
-	data P = pl[p] ;
-	int nw = bp[P.b][a] ;
-
-	return f[P.b][P.p][nw] + g[P.b - 1][a] ;
+	return sum[by][a] - sum[bx - 1][a] ;
 }
 
-int update(int x , int y , int a) {
-	return cal(y , a) - cal(x - 1 , a) ;
-}
+void update(data &res , int x , int y , int bx , int by) {
+	for (int i = x ; i <= y ; ++i) {
+		int t = a[i] ;
+		if (!ap[t]) continue ;
 
-COUNT find(int x , int y , int fx , int fy) {
-	COUNT res = (COUNT){-1 , -1} ;
-
-	for (int i = fx ; i <= fy ; ++i) {
-		COUNT tmp = (COUNT){a[i] , update(x , y , a[i])} ;
-		res = cmp(res , tmp) ;
+		data tmp = (data){t , find(bx , by , t) + ap[t]} ;
+		res = cmp(res , tmp) ; ap[t] = 0 ;
 	}
+}
+
+data work1(int bx , int by , int x , int y) {
+	data res = bx > by ? (data){-1 , -1} : f[bx][by] ;
+	for (int i = x ; i <= y ; ++i) ++ap[a[i]] ;
+
+	if (res.num != -1) res.cnt += ap[res.num] ;
+
+	update(res , x , y , bx , by) ;
 
 	return res ;
 }
 
-COUNT getans(int x , int y) {
-	COUNT A , B , C ;
-	A = B = C = (COUNT){-1 , -1} ;
+data work2(int x , int y) {
+	int x1 , y1 , x2 , y2 ;
+	data res = bk[x] + 1 < bk[y] ? f[bk[x] + 1][bk[y] - 1] : (data){-1 , -1} ;
 
-	A = find(x , y , x , std::min(ed(bk[x]) , y)) ;
-	if (bk[x] != bk[y]) B = find(x , y , st(bk[y]) , y) ;
-	if (bk[x] + 1 < bk[y]) {
-		C = ans[bk[x] + 1][bk[y] - 1] ;
-		C.cnt = update(x , y , C.num) ;
-	}
+	x1 = x ; y1 = std::min(ed(bk[x]) , y) ;
+	if (bk[x] != bk[y]) x2 = st(bk[y]) ; y2 = y ;
 
-	return cmp(cmp(A , B) , C) ;
+	///
+
+	for (int i = x1 ; i <= y1 ; ++i) ++ap[a[i]] ;
+	for (int i = x2 ; i <= y2 ; ++i) ++ap[a[i]] ;
+
+	update(res , x1 , y1 , bk[x] + 1 , bk[y] - 1) ;
+	update(res , x2 , y2 , bk[x] + 1 , bk[y] - 1) ;
+
+	return res ;
 }
 
 ///
@@ -97,59 +99,33 @@ int main() {
 		}
 		a[i] = bh[t] ;
 	}
-
-	pl[0] = (data){0 , siz} ;
-	for (int i = 1 ; i <= n ; ++i) {
-		bk[i] = (i - 1) / siz + 1 ;
-		pl[i] = pl[i - 1] + 1 ;
-
-		if (pl[i].p > siz) pl[i].p -= siz , ++pl[i].b ;
-	}
+	for (int i = 1 ; i <= n ; ++i) bk[i] = (i - 1) / siz + 1 ;
 
 	///
 
-	for (int i = 1 ; i <= bk[n] ; ++i) {
-		int t = 0 , L = st(i) , R = std::min(ed(i) , n) ;
+	for (int i = 1 ; i <= bk[n] ; ++i){
+		int L = st(i) , R = std::min(ed(i) , n) ;
+		for (int j = L ; j <= R ; ++j) ++ap[a[j]] ;
 
-		for (int j = 1 ; j <= tot ; ++j) ap[j] = 0 ;
-		for (int j = L ; j <= R ; ++j) if (!ap[a[j]]) bp[i][a[j]] = ++t , ap[a[j]] = 1 ;
-
-		for (int j = L ; j <= R ; ++j) {
-			int p = j - L + 1 , nw = bp[i][a[j]] ;
-
-			for (int k = 1 ; k <= t ; ++k) f[i][p][k] = f[i][p - 1][k] ;
-			++f[i][p][nw] ;
+		for (int j = 1 ; j <= tot ; ++j) {
+			sum[i][j] = sum[i - 1][j] + ap[j] ;
+			ap[j] = 0 ;
 		}
 	}
 
 	for (int i = 1 ; i <= bk[n] ; ++i)
-		for (int j = 1 ; j <= tot ; ++j) {
-			int nw = bp[i][j] , ed = std::min(ed(i) , n) - st(i) + 1 ;
-
-			g[i][j] = g[i - 1][j] + f[i][ed][nw] ;
-		}
-
-	for (int i = 1 ; i <= bk[n] ; ++i)
 		for (int j = 1 ; j <= bk[n] ; ++j) {
-			COUNT tmp ;
-			if (i == j) tmp = (COUNT){-1 , -1} ;
-			else tmp = ans[i][j - 1] ;
-
-			int L = st(i) , R = std::min(ed(j) , n) ;
-			if (tmp.cnt != -1) tmp.cnt = update(L , R , tmp.num) ;
-			tmp = cmp(tmp , find(L , R , st(j) , R)) ;
-
-			ans[i][j] = tmp ;
+			int L = st(j) , R = std::min(ed(j) , n) ;
+			f[i][j] = work1(i , j - 1 , L , R) ;
 		}
 
 	///
 
 	for (int i = 0 ; i < n ; ++i) {
-		int a , b ;
-		a = read() ; b = read() ;
+		int a , b ; a = read() ; b = read() ;
 
-		COUNT res = getans(a , b) ;
-		printf("%d\n" , num[res.num]) ;
+		int ans = num[work2(a , b).num] ;
+		printf("%d\n" , ans) ;
 	}
 
 	return 0 ;
