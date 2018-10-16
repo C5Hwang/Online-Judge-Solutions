@@ -67,7 +67,7 @@ int work(int x , int y) {
 }
 
 int main() {
-	n = read() ; c = read() ; m = read() ; siz = 316 ;
+	n = read() ; c = read() ; m = read() ; siz = (int)sqrt(n) ;
 	for (int i = 1 ; i <= n ; ++i) a[i] = read() ;
 
 	for (int i = 1 ; i <= n ; ++i) bk[i] = (i - 1) / siz + 1 ;
