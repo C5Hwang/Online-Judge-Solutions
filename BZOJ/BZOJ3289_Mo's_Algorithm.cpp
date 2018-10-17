@@ -1,4 +1,3 @@
-#include <map>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,8 +6,6 @@
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
 const int MAX_N = 5e4 + 10 ;
-
-std::map<int , int> bh ;
 
 struct QUERY {
 	int x , y , bk , idx ;
@@ -98,6 +95,7 @@ int main() {
 			last = a[i].num ;
 			a[i].num  = ++tot ;
 		}
+		else a[i].num = tot ;
 
 	std::sort(a + 1 , a + 1 + n , cmp2) ;
 
