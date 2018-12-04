@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <algorithm>
 
+#define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
+
 const int MAX_N = 100 + 10 , MAX_S = 25e3 + 10 ;
 
 bool f[MAX_S] ;
