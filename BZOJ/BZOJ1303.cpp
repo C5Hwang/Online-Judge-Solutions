@@ -1,35 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define cnt(i) cnt[i + offset]
+#define ll long long
+#define cnt(x) cnt[x + offset]
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
 const int MAX_N = 1e5 + 10 , offset = 1e5 ;
 
-int n , m , p , ans , a[MAX_N] , cnt[MAX_N << 1] ;
+int n , b , p , a[MAX_N] , s[MAX_N] , cnt[MAX_N << 1] ;
 
 int main() {
-	scanf("%d %d" , &n , &m) ;
-	for (int i = 0 ; i < n ; ++i) {
+	scanf("%d %d" , &n , &b) ;
+	for (int i = 1 ; i <= n ; ++i) {
 		scanf("%d" , &a[i]) ;
-		if (a[i] == m) p = i ;
+		if (a[i] < b) a[i] = -1 ;
+		else if (a[i] > b) a[i] = 1 ;
+		else a[i] = 0 , p = i ;
 	}
 
 	///
 
-	int s = 0 ; ++cnt(0) ;
-	for (int i = p + 1 ; i < n ; ++i) {
-		s += a[i] > m ? 1 : -1 ;
-		++cnt(s) ;
-	}
+	s[0] = 0 ;
+	for (int i = 1 ; i <= n ; ++i) s[i] = s[i - 1] + a[i] ;
 
-	s = 0 ; ans = cnt(0) ;
-	for (int i = p - 1 ; i >= 0 ; --i) {
-		s += a[i] > m ? 1 : -1 ;
-		ans += cnt(-s) ;
-	}
+	ll ans = 0 ;
+	for (int i = p ; i <= n ; ++i) ++cnt(s[i]) ;
+	for (int i = 1 ; i <= p ; ++i) ans += cnt(s[i - 1]) ;
 
-	printf("%d\n" , ans) ;
+	printf("%lld\n" , ans) ;
 
 	return 0 ;
 }
