@@ -1,4 +1,5 @@
 #include <queue>
+#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -7,30 +8,27 @@
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
 const ll INF = 1e16 ;
-const int MAX_N = 1e3 + 10 , MAX_M = 11e5 + 10 ;
+const int MAX_N = 1e3 + 10 ;
 
-struct Link {
-	int num ; ll cap ;
-	Link *next , *reg ;
-}list[MAX_M << 1] ;
+struct data {int num , reg ; ll cap ;} ;
 
 std::queue<int> que ;
+std::vector<data> eg[MAX_N] ;
 
-Link *head[MAX_N] ;
 ll sum , b[MAX_N] ;
 int n , T , ti , cur , ap[MAX_N] , dep[MAX_N] ;
 
 ll dfs(int x , ll f) {
 	if (!f || x == T) return f ;
 
-	ll s = 0 ;
-	for (Link *h = head[x] ; h ; h = h->next) {
-		int nx = h->num ;
+	ll s = 0 ; int siz = eg[x].size() ;
+	for (int i = 0 ; i < siz ; ++i) {
+		int nx = eg[x][i].num ;
 		if (dep[nx] != dep[x] + 1) continue ;
 
-		ll nf = dfs(nx , std::min(f , h->cap)) ;
-		s += nf ; h->reg->cap += nf ;
-		f -= nf ; h->cap -= nf ;
+		ll nf = dfs(nx , std::min(f , eg[x][i].cap)) ;
+		s += nf ; eg[nx][eg[x][i].reg].cap += nf ;
+		f -= nf ; eg[x][i].cap -= nf ;
 
 		if (!f) return s ;
 	}
@@ -44,11 +42,11 @@ bool bfs() {
 	dep[0] = 1 ; ap[0] = ++ti ;
 
 	for (; !que.empty() ;) {
-		int x = que.front() ; que.pop() ;
+		int x = que.front() , s = eg[x].size() ; que.pop() ;
 
-		for (Link *h = head[x] ; h ; h = h->next) {
-			int nx = h->num ;
-			if (!h->cap || ap[nx] == ti) continue ;
+		for (int i = 0 ; i < s ; ++i) {
+			int nx = eg[x][i].num ;
+			if (!eg[x][i].cap || ap[nx] == ti) continue ;
 
 			que.push(nx) ;
 			dep[nx] = dep[x] + 1 ; ap[nx] = ti ;
@@ -66,17 +64,9 @@ ll dinic() {
 }
 
 void ins(int x , int y , ll v) {
-	list[cur].num = y ;
-	list[cur].cap = v ;
-	list[cur].next = head[x] ;
-	list[cur].reg = &list[cur^1] ;
-	head[x] = &list[cur++] ;
-
-	list[cur].num = x ;
-	list[cur].cap = 0 ;
-	list[cur].next = head[y] ;
-	list[cur].reg = &list[cur^1] ;
-	head[y] = &list[cur++] ;
+	int p1 = eg[x].size() , p2 = eg[y].size() ;
+	eg[x].push_back((data){y , p2 , v}) ;
+	eg[y].push_back((data){x , p1 , 0}) ;
 }
 
 inline int read() {
