@@ -1,16 +1,15 @@
 #include <queue>
+#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
 
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
-const int MAX_N = 5e3 + 10 , MAX_P = 2e5 + 10 , MAX_M = 5e5 + 10 , INF = 0x3f3f3f3f ;
+const int MAX_N = 5e3 + 10 , MAX_P = 2e5 + 10 , INF = 0x3f3f3f3f ;
 
-struct Link {
-	int num , cap ;
-	Link *next , *reg ;
-}list[MAX_M << 1] ;
+struct data {int num , cap , reg ;} ;
+
 struct Node {
 	int idx ;
 	Node *ch[2] ;
@@ -19,8 +18,8 @@ struct Node {
 }tre[MAX_P] ;
 
 std::queue<int> que ;
+std::vector<data> eg[MAX_P] ;
 
-Link *head[MAX_P] ;
 Node *root[MAX_N] ;
 int T , ti , tot , cnt , ap[MAX_P] , dep[MAX_P] ;
 int n , sum , cur , ma , a[MAX_N] , b[MAX_N] , w[MAX_N] , l[MAX_N] , r[MAX_N] , p[MAX_N] , bh[MAX_N][2] ;
@@ -30,17 +29,9 @@ int n , sum , cur , ma , a[MAX_N] , b[MAX_N] , w[MAX_N] , l[MAX_N] , r[MAX_N] , 
 void ins(int x , int y , int v) {
 	if (x == -1 || y == -1) return ;
 
-	list[cur].num = y ;
-	list[cur].cap = v ;
-	list[cur].next = head[x] ;
-	list[cur].reg = &list[cur^1] ;
-	head[x] = &list[cur++] ;
-
-	list[cur].num = x ;
-	list[cur].cap = 0 ;
-	list[cur].next = head[y] ;
-	list[cur].reg = &list[cur^1] ;
-	head[y] = &list[cur++] ;
+	int p1 = eg[x].size() , p2 = eg[y].size() ;
+	eg[x].push_back((data){y , v , p2}) ;
+	eg[y].push_back((data){x , 0 , p1}) ;
 }
 
 inline int read() {
@@ -58,14 +49,14 @@ inline int read() {
 int dfs(int x , int f) {
 	if (x == T || !f) return f ;
 
-	int s = 0 ;
-	for (Link *h = head[x] ; h ; h = h->next) {
-		int nx = h->num ;
+	int s = 0 , siz = eg[x].size() ;
+	for (int i = 0 ; i < siz ; ++i) {
+		int nx = eg[x][i].num ;
 		if (dep[nx] != dep[x] + 1) continue ;
 
-		int nf = dfs(nx , std::min(f , h->cap)) ;
-		s += nf ; h->reg->cap += nf ;
-		f -= nf ; h->cap -= nf ;
+		int nf = dfs(nx , std::min(f , eg[x][i].cap)) ;
+		s += nf ; eg[nx][eg[x][i].reg].cap += nf ;
+		f -= nf ; eg[x][i].cap -= nf ;
 	}
 	if (f) dep[x] = -1 ;
 
@@ -77,11 +68,11 @@ bool bfs() {
 	ap[0] = ++ti ; dep[0] = 1 ;
 
 	for (; !que.empty() ;) {
-		int x = que.front() ; que.pop() ;
+		int x = que.front() , siz = eg[x].size() ; que.pop() ;
 
-		for (Link *h = head[x] ; h ; h = h->next) {
-			int nx = h->num ;
-			if (ap[nx] == ti || !h->cap) continue ;
+		for (int i = 0 ; i < siz ; ++i) {
+			int nx = eg[x][i].num ;
+			if (ap[nx] == ti || !eg[x][i].cap) continue ;
 
 			que.push(nx) ;
 			ap[nx] = ti ; dep[nx] = dep[x] + 1 ;
