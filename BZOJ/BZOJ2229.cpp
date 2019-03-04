@@ -7,7 +7,7 @@
 
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
-const int MAX_N = 150 + 10 , INF = 0x3f3f3f3f ;
+const int MAX_N = 150 + 10 , MAX_P = 3e4 + 10 , INF = 0x3f3f3f3f ;
 
 struct data {int num , cap , reg ;} ;
 struct Link {
@@ -21,7 +21,7 @@ std::vector<data> eg[MAX_N] ;
 bool vis[MAX_N] ;
 Link *head[MAX_N] ;
 int S , T , ti , ap[MAX_N] , dep[MAX_N] ;
-int CASE , n , m , cur , tot , ans[MAX_N] , vert[MAX_N] , t1[MAX_N] , t2[MAX_N] , c[MAX_N][MAX_N] ;
+int CASE , n , m , cur , tot , ans[MAX_P] , vert[MAX_N] , t1[MAX_N] , t2[MAX_N] , c[MAX_N][MAX_N] ;
 
 ///
 
