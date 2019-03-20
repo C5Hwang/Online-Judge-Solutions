@@ -46,8 +46,8 @@ void getsa(int m) {
 void geth() {
 	int k = 0 ;
 	for (int i = 0 ; i < tot ; ++i) {
+		if (rk[i] == 1) {k = 0 ; continue ;}
 		if (k) --k ;
-		if (rk[i] == 1) continue ;
 
 		int j = sa[rk[i] - 1] ;
 		for (; j + k < tot && i + k < tot && s[i + k] == s[j + k] ; ++k) ;
