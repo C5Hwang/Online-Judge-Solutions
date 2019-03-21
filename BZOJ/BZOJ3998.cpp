@@ -19,7 +19,7 @@ struct Link {
 Node *last ;
 char s[MAX_N] ;
 Link *head[MAX_N] ;
-int n , T , k , tot , cur , in[MAX_N << 1] ;
+int n , T , k , tot , cur ;
 
 void extend(int c) {
     Node *cur = &sam[tot++] , *p = last ;
