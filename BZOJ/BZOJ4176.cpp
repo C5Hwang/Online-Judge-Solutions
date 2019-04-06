@@ -30,18 +30,18 @@ void init() {
 	}
 }
 
-int count(int n) {
-	if (n <= lim) return sum[n] ;
-	if (ans[m / n] != -1) return ans[m / n] ;
+int count(int m) {
+	if (m <= lim) return sum[m] ;
+	if (ans[n / m] != -1) return ans[n / m] ;
 
 	int res = 1 ;
-	for (int L = 2 ; L <= n ;) {
-		int t = n / L , R = n / t ;
+	for (int L = 2 ; L <= m ;) {
+		int t = m / L , R = m / t ;
 
 		res = (res + mod - (ll)count(t) * (R - L + 1) % mod) % mod ; L = R + 1 ;
 	}
 
-	return (ans[m / n] = res) ;
+	return (ans[n / m] = res) ;
 }
 
 int getsum(int n) {
@@ -60,12 +60,12 @@ int main() {
 	scanf("%d" , &n) ;
 	init() ;
 
+	for (int i = 0 ; i <= n / lim ; ++i) ans[i] = -1 ;
+	count(n) ;
+
 	int last = 0 , res = 0 ;
 	for (int L = 1 ; L <= n ;) {
-		int t = n / L , R = n / t ;
-
-		m = R ; for (int i = 0 ; i <= R / lim ; ++i) ans[i] = -1 ;
-		int psum = count(R) , S = getsum(t) ;
+		int t = n / L , R = n / t , psum = count(R) , S = getsum(t) ;
 
 		res = (res + (ll)S * (psum + mod - last)) % mod ; L = R + 1 ; last = psum ;
 	}
