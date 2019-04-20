@@ -5,7 +5,7 @@
 #define ll long long
 #define DEBUG printf("Passing [%s] in Line %d\n" , __FUNCTION__ , __LINE__) ;
 
-const int MAX_N = 1e5 + 10 , MAX_M = 8e5 + 10 , mod = (119 << 23) + 1 , G = 3 ;
+const int MAX_N = 2e5 + 10 , MAX_M = 8e5 + 10 , mod = (119 << 23) + 1 , G = 3 ;
 
 int n , m , a[MAX_N] , b[MAX_N] , f[MAX_M] , g[MAX_M] , rev[MAX_M] ;
 
